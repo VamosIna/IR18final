@@ -431,6 +431,102 @@ class IMDB
         }
 
         return self::$sNotFound;
+    }
+    public function getTitle($bForceLocal = false)
+    {
+        if (true === $this->isReady) {
+            if (true === $bForceLocal) {
+                $sMatch = IMDBHelper::matchRegex($this->sSource, self::IMDB_TITLE_ORIG, 1);
+                if (false !== $sMatch && "" !== $sMatch) {
+                    return IMDBHelper::cleanString($sMatch);
+                }
+            }
+
+            $sMatch = IMDBHelper::matchRegex($this->sSource, self::IMDB_TITLE, 1);
+            $sMatch = preg_replace('~\(\d{4}\)$~Ui', '', $sMatch);
+            if (false !== $sMatch && "" !== $sMatch) {
+                return IMDBHelper::cleanString($sMatch);
+            }
+        }
+
+        return self::$sNotFound;
+    }
+
+    /**
+     * @param bool $bEmbed Link to player directly?
+     *
+     * @return string The URL to the trailer of the movie or $sNotFound.
+     */
+    
+    public function getUserReview()
+    {
+        if (true === $this->isReady) {
+            $sMatch = IMDBHelper::matchRegex($this->sSource, self::IMDB_USER_REVIEW, 1);
+            if (false !== $sMatch) {
+                return IMDBHelper::cleanString($sMatch);
+            }
+        }
+
+        return self::$sNotFound;
+    }
+
+    /**
+     * @return string The votes of the movie or $sNotFound.
+     */
+    public function getVotes()
+    {
+        if (true === $this->isReady) {
+            $sMatch = IMDBHelper::matchRegex($this->sSource, self::IMDB_VOTES, 1);
+            if (false !== $sMatch) {
+                return IMDBHelper::cleanString($sMatch);
+            }
+        }
+
+        return self::$sNotFound;
+    }
+
+    /**
+     * @return string A list with the writers or $sNotFound.
+     */
+   
+    public function getWriter($sTarget = '')
+    {
+        if (true === $this->isReady) {
+            $sMatch  = IMDBHelper::matchRegex($this->sSource, self::IMDB_WRITER, 1);
+            $aMatch  = IMDBHelper::matchRegex($sMatch, self::IMDB_NAME);
+            $aReturn = [];
+            if (count($aMatch[2])) {
+                foreach ($aMatch[2] as $i => $sName) {
+                    $aReturn[] =
+                        '<a href="https://www.imdb.com/name/' .
+                        IMDBHelper::cleanString($aMatch[1][$i]) .
+                        '/"' .
+                        ($sTarget ? ' target="' . $sTarget . '"' : '') .
+                        '>' .
+                        IMDBHelper::cleanString($sName) .
+                        '</a>';
+                }
+
+                return IMDBHelper::arrayOutput($this->bArrayOutput, $this->sSeparator, self::$sNotFound, $aReturn);
+            }
+        }
+
+        return self::$sNotFound;
+    }
+
+    /**
+     * @return string The year of the movie or $sNotFound.
+     */
+    public function getYear()
+    {
+        if (true === $this->isReady) {
+            $sMatch = IMDBHelper::matchRegex($this->sSource, self::IMDB_YEAR, 1);
+            if (false !== $sMatch) {
+                return IMDBHelper::cleanString($sMatch);
+            }
+        }
+
+        return self::$sNotFound;
     } 
 }
 class IMDBHelper extends IMDB
