@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>PHP-IMDB </title>
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:400,700">
-  
+  <h1> SCRAPING Most Popular Movies IMDB Dengan Regex</h1>
   <style>
     body {
       background-color: #E5D555;
@@ -44,32 +44,24 @@
     }
   </style>
   
-  
 </head>
 <body>
-<?php
-include 'imdb.class.php';
+<?php 
+$page = file_get_contents('https://www.imdb.com/chart/moviemeter');
+$reg = array();
+preg_match_all('/<td class="titleColumn">[\s\S]*?<a href="([\s\S]*?)"[\s\S]*?>([\s\S]*?)<\/a>[\s\S]*?<span class="secondaryInfo">\((\d*?)\)<\/span>[\s\S]*?<\/td>/',$page, $reg);
+$link = $reg[1];
+$title = $reg[2];
+$year = $reg[3];
 
-$aTests = [
-    'https://www.imdb.com/title/tt4633694/',
-    'https://www.imdb.com/title/tt0110357/'];
-    
-set_time_limit(count($aTests) * 15);
-
-$i = 0;
-foreach ($aTests as $sMovie) {
-    $i++;
-    $oIMDB = new IMDB($sMovie);
-    if ($oIMDB->isReady) {
-        echo '<h1>' . $sMovie . '</h1>';
-        foreach ($oIMDB->getAll() as $aItem) {
-            echo '<p><b>' . $aItem['name'] . '</b>: ' . $aItem['value'] . '</p>';
-        }
-    } else {
-        echo '<p><b>Movie not found</b>: ' . $sMovie . '</p>';
-    }
-    echo '<hr>';
+echo '<table><tr><th>Judul</th><th>Tahun</th><th>sinopsis</th></tr>';
+for($i=0; $i<count($link); $i++) {
+  echo '<tr>';
+  echo '<td>'.$title[$i].'</td>';
+  echo '<td>'.$year[$i].'</td>';
+  echo '</tr>';
 }
-?>
+
+ ?>
 </body>
 </html>
